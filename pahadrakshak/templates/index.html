@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123f35">
+  <meta name="description" content="PahadRakshak community hazard reports and Himalayan travel risk awareness prototype.">
+  <title>PahadRakshak — Himalayan Safety</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="PahadRakshak home">
+        <span class="brand-mark">▲</span>
+        <span><strong>Pahad<span>Rakshak</span></strong><small>Himalayan Road &amp; Hazard Intelligence</small></span>
+      </a>
+      <nav class="nav-list" aria-label="Main navigation">
+        <a class="nav-item active" href="#overview"><span>⌂</span> Overview</a>
+        <a class="nav-item" href="#map-section"><span>◎</span> Hazard map</a>
+        <button class="nav-item" id="open-report"><span>＋</span> Report a hazard</button>
+        <a class="nav-item" href="#alerts"><span>♧</span> Priority alerts <span class="nav-count" id="alert-count">0</span></a>
+        <a class="nav-item" href="#route-check"><span>⇄</span> Route safety check</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mountain-art" aria-hidden="true">🏔️</div>
+        <div class="community-card"><span class="community-icon">✳</span><div><strong>Safer mountains.<br>Stronger communities.</strong><small>Report · Share · Travel safer</small></div></div>
+        <small class="sidebar-note">Prototype · Sample reports may be shown</small>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar" id="overview">
+        <div><p class="eyebrow">PAHADRAKSHAK / OVERVIEW</p><h1>Himalayan Safety Overview</h1><p class="subtitle">Community hazard reports and official advisories for better-informed journeys.</p></div>
+        <div class="top-actions"><span class="location-pill">⌖ <span>Uttarkashi, Uttarakhand</span></span><span class="avatar" aria-hidden="true">PR</span></div>
+      </header>
+
+      <div class="demo-banner"><span class="banner-dot"></span><strong>DEMO MODE</strong><span>Incidents shown may be sample data, not current conditions.</span></div>
+
+      <section class="stats-grid" aria-label="Hazard overview">
+        <article class="stat-card"><div class="stat-icon red">⚠</div><div><p>Reports shown</p><strong id="stat-total">—</strong><small>All available reports</small></div></article>
+        <article class="stat-card"><div class="stat-icon green">✓</div><div><p>Pending review</p><strong id="stat-pending">—</strong><small>Not yet verified</small></div></article>
+        <article class="stat-card"><div class="stat-icon amber">!</div><div><p>High / severe</p><strong id="stat-high">—</strong><small>Use extra caution</small></div></article>
+        <article class="stat-card"><div class="stat-icon blue">◷</div><div><p>Data status</p><strong class="status-word">Prototype</strong><small>No live feed connected</small></div></article>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel map-panel" id="map-section">
+          <div class="panel-heading"><div><h2>Hazard map</h2><p>Explore report locations in the Uttarkashi region</p></div><select id="type-filter" aria-label="Filter by hazard type"><option value="all">All hazard types</option><option>Landslide</option><option>Road Blockage</option><option>Flood / High Water</option><option>Heavy Rainfall</option><option>Other</option></select></div>
+          <div id="map" role="application" aria-label="Map of sample hazard reports"></div>
+          <div class="map-legend"><span><i class="legend-dot severe"></i> Severe</span><span><i class="legend-dot high"></i> High</span><span><i class="legend-dot moderate"></i> Moderate</span><span class="legend-note">Markers are reports, not confirmed closures.</span></div>
+        </section>
+
+        <section class="panel alerts-panel" id="alerts">
+          <div class="panel-heading"><div><h2>Priority reports</h2><p>Newest reports first</p></div><button class="text-button" id="refresh-reports">Refresh ↻</button></div>
+          <div id="report-list" class="report-list"><div class="loading-state">Loading reports…</div></div>
+        </section>
+      </div>
+
+      <section class="panel route-panel" id="route-check">
+        <div class="panel-heading"><div><h2>Route safety check</h2><p>Review reported hazards before travelling</p></div><span class="pill neutral">Advisory only</span></div>
+        <form id="route-form" class="route-form">
+          <label>From<input name="origin" placeholder="e.g. Uttarkashi" value="Uttarkashi" required></label>
+          <span class="route-arrow" aria-hidden="true">→</span>
+          <label>To<input name="destination" placeholder="e.g. Gangotri" value="Gangotri" required></label>
+          <button class="primary-button" type="submit">Review reports <span>→</span></button>
+        </form>
+        <div id="route-result" class="route-result" aria-live="polite"><span class="result-icon">i</span><p>Enter an origin and destination to see available reports. This demo does not calculate routes or verify road safety.</p></div>
+      </section>
+
+      <section class="panel report-section" id="report-section">
+        <div class="panel-heading"><div><h2>Community reports</h2><p>Help others by sharing a clear, factual observation</p></div><button class="primary-button compact" id="open-report-secondary">＋ Submit report</button></div>
+        <p class="helper-text">Submitted reports are marked <strong>Pending verification</strong>. Do not post private information or treat a community report as an official emergency alert.</p>
+      </section>
+
+      <footer class="footer"><span>© PahadRakshak · Student prototype</span><span>Always follow official instructions and verify conditions with local authorities.</span></footer>
+    </main>
+  </div>
+
+  <dialog id="report-dialog" class="report-dialog">
+    <form id="hazard-form" class="dialog-form">
+      <div class="dialog-header"><div><p class="eyebrow">COMMUNITY CONTRIBUTION</p><h2>Report a hazard</h2><p>Provide an accurate location and factual details.</p></div><button type="button" class="close-button" id="close-dialog" aria-label="Close dialog">×</button></div>
+      <label>Report title<input name="title" maxlength="120" placeholder="e.g. Debris on roadside" required></label>
+      <div class="form-row">
+        <label>Hazard type<select name="type" required><option value="">Choose type</option><option>Landslide</option><option>Road Blockage</option><option>Flood / High Water</option><option>Heavy Rainfall</option><option>Other</option></select></label>
+        <label>Severity<select name="severity" required><option value="">Choose level</option><option>Low</option><option>Moderate</option><option>High</option><option>Severe</option></select></label>
+      </div>
+      <label>Location<input name="location" maxlength="160" placeholder="Village, road or landmark" required></label>
+      <div class="form-row">
+        <label>Latitude (optional)<input name="lat" type="number" min="-90" max="90" step="any" placeholder="30.99"></label>
+        <label>Longitude (optional)<input name="lng" type="number" min="-180" max="180" step="any" placeholder="78.93"></label>
+      </div>
+      <label>Description<textarea name="description" rows="3" maxlength="1000" placeholder="Describe what you observed, and when." required></textarea></label>
+      <div class="form-notice">Reports are unverified until reviewed. Do not put yourself in danger to collect information.</div>
+      <p id="form-message" class="form-message" aria-live="polite"></p>
+      <div class="dialog-actions"><button type="button" class="secondary-button" id="cancel-dialog">Cancel</button><button type="submit" class="primary-button">Submit for review ↗</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
